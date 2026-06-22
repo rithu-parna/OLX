@@ -10,6 +10,7 @@ import SellModal from './components/SellModal';
 import ChatInbox from './components/ChatInbox';
 import Dashboard from './components/Dashboard';
 import Footer from './components/Footer';
+import ActiveFilters from './components/ActiveFilters';
 import { Sparkles } from 'lucide-react';
 
 export default function App() {
@@ -282,6 +283,25 @@ export default function App() {
           categories={mockCategories}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
+        />
+
+        {/* Active Filters Display Bar */}
+        <ActiveFilters
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}
+          minPrice={minPrice}
+          setMinPrice={setMinPrice}
+          maxPrice={maxPrice}
+          setMaxPrice={setMaxPrice}
+          selectedConditions={selectedConditions}
+          setSelectedConditions={setSelectedConditions}
+          videoOnly={videoOnly}
+          setVideoOnly={setVideoOnly}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          categories={mockCategories}
         />
 
         {/* Filters Sidebar & Ads Grid Container */}

@@ -9,6 +9,7 @@ export default function ChatInbox({
 }) {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [typedMessage, setTypedMessage] = useState('');
+  const [typingChatId, setTypingChatId] = useState(null);
   const chatEndRef = useRef(null);
 
   const activeChat = chats.find(c => c.id === selectedChatId);
@@ -17,7 +18,7 @@ export default function ChatInbox({
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [activeChat?.messages]);
+  }, [activeChat?.messages, typingChatId]);
 
   if (!isOpen) return null;
 
@@ -27,6 +28,12 @@ export default function ChatInbox({
 
     onSendMessage(selectedChatId, typedMessage);
     setTypedMessage('');
+
+    // Trigger local simulated seller typing status
+    setTypingChatId(selectedChatId);
+    setTimeout(() => {
+      setTypingChatId(null);
+    }, 1500);
   };
 
   return (
@@ -109,7 +116,6 @@ export default function ChatInbox({
                 </div>
               </div>
 
-              {/* Messages Log */}
               <div className="chat-panel-body" style={{ flex: 1, height: 'auto' }}>
                 {activeChat?.messages.map((msg, index) => (
                   <div key={index} className={`chat-msg ${msg.sender}`}>
@@ -117,6 +123,15 @@ export default function ChatInbox({
                     <div className="chat-msg-time">{msg.time}</div>
                   </div>
                 ))}
+                {typingChatId === selectedChatId && (
+                  <div className="chat-msg seller typing" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <div className="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                )}
                 <div ref={chatEndRef} />
               </div>
 

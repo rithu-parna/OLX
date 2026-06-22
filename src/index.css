@@ -176,6 +176,15 @@ body {
   color: var(--text-primary);
 }
 
+.logo-container img {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s;
+}
+
+.logo-container:hover img {
+  transform: scale(1.08) rotate(45deg);
+  filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.5));
+}
+
 .logo-highlight {
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   -webkit-background-clip: text;
@@ -207,14 +216,15 @@ body {
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
 }
 
 .location-button:hover, .location-button:focus {
-  border-color: var(--border-focus);
+  border-color: var(--color-primary-light);
   background: var(--bg-secondary);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
 }
 
 .location-button-content {
@@ -277,9 +287,10 @@ body {
 }
 
 .search-bar:focus-within {
-  border-color: var(--border-focus);
+  border-color: var(--color-primary-light);
   background: var(--bg-secondary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15), 0 4px 15px rgba(20, 184, 166, 0.08);
+  transform: translateY(-1px);
 }
 
 .search-input {
@@ -373,12 +384,14 @@ body {
   cursor: pointer;
   position: relative;
   transition: var(--transition);
+  box-shadow: var(--shadow-sm);
 }
 
 .action-btn:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-light);
   color: var(--color-primary);
   transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .badge-dot {
@@ -390,6 +403,13 @@ body {
   background-color: var(--color-danger);
   border: 1.5px solid var(--bg-secondary);
   border-radius: 50%;
+  animation: pulseAlert 1.8s infinite alternate;
+}
+
+@keyframes pulseAlert {
+  0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
 .sell-btn {
@@ -397,29 +417,52 @@ body {
   align-items: center;
   gap: 8px;
   height: 46px;
-  padding: 0 20px;
-  border: none;
+  padding: 0 24px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, #8b5cf6 100%);
+  background-size: 200% 200%;
   color: #ffffff;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
-  transition: var(--transition);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3), 0 2px 5px rgba(13, 148, 136, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, background-position 0.5s ease;
+}
+
+.sell-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 30%;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(30deg);
+  transition: none;
+  opacity: 0;
 }
 
 .sell-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(13, 148, 136, 0.4);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(13, 148, 136, 0.45);
+
+}
+
+.sell-btn:hover::after {
+  left: 140%;
+  opacity: 1;
+  transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .sell-btn svg {
-  transition: transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .sell-btn:hover svg {
-  transform: rotate(90deg);
+  transform: rotate(45deg) scale(1.15);
 }
 
 /* User Profile Widget */
@@ -437,12 +480,21 @@ body {
   height: 40px;
   border-radius: var(--radius-full);
   object-fit: cover;
-  border: 2px solid var(--border-color);
+  border: 2px solid transparent;
+  background-image: linear-gradient(var(--bg-secondary), var(--bg-secondary)), linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
   transition: var(--transition);
+  animation: avatarPulse 4s infinite alternate;
+}
+
+@keyframes avatarPulse {
+  0% { box-shadow: 0 0 2px rgba(20, 184, 166, 0.2); }
+  100% { box-shadow: 0 0 10px rgba(20, 184, 166, 0.45); }
 }
 
 .profile-widget:hover .profile-avatar {
-  border-color: var(--color-primary);
+  transform: scale(1.05);
 }
 
 /* Hero Carousel Slider */
@@ -653,15 +705,136 @@ body {
 .category-chip:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .category-chip.active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
+  border: 1px solid var(--color-primary-light);
+  color: var(--color-primary);
+  box-shadow: 0 0 16px rgba(20, 184, 166, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
 }
+
+/* Light theme adjustments for active chip */
+[data-theme="light"] .category-chip.active {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+  color: #0f766e;
+  border-color: #99f6e4;
+}
+
+.category-chip-active-icon {
+  color: var(--color-accent);
+  animation: rotateGlow 2.5s ease-in-out infinite alternate;
+}
+
+.active-chip-indicator {
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-accent);
+  display: inline-block;
+  margin-left: 2px;
+}
+
+/* Keyframes for active icon and dot */
+@keyframes rotateGlow {
+  0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 2px var(--color-accent)); }
+  100% { transform: scale(1.15) rotate(15deg); filter: drop-shadow(0 0 6px var(--color-accent)); }
+}
+
+/* Active Filters Row Tracker styling */
+.active-filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+  border: 1px solid var(--border-color);
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  animation: fadeIn 0.3s ease-out both;
+}
+
+.active-filters-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.active-filters-list {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.active-filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+.active-filter-chip:hover {
+  border-color: var(--color-primary-light);
+  background: var(--bg-secondary);
+  transform: translateY(-1px);
+}
+
+.clear-chip-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.clear-chip-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--color-danger);
+}
+
+.clear-all-filters-btn {
+  border: none;
+  background: transparent;
+  color: var(--color-danger);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.clear-all-filters-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--color-danger);
+  transform: translateY(-1px);
+}
+
 
 /* Filter Panel & Main Content Layout */
 .main-content-layout {
@@ -1712,32 +1885,94 @@ body {
 
 .chat-msg {
   max-width: 80%;
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 11px 15px;
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.45;
   word-break: break-word;
+  animation: messageSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .chat-msg.user {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   color: #ffffff;
   align-self: flex-end;
-  border-bottom-right-radius: 2px;
+  border-radius: 16px 16px 4px 16px;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
 }
 
 .chat-msg.seller {
   background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
   align-self: flex-start;
-  border-bottom-left-radius: 2px;
+  border-radius: 16px 16px 16px 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
 }
 
 .chat-msg-time {
   font-size: 9px;
-  margin-top: 4px;
-  opacity: 0.7;
+  margin-top: 5px;
+  opacity: 0.6;
   text-align: right;
+}
+
+/* Typing Indicator Animation & Bubble */
+.chat-msg.seller.typing {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  border-radius: 16px 16px 16px 4px;
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.typing-indicator span {
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  display: inline-block;
+  animation: typingBounce 1.4s infinite both;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1.1) translateY(-4px); opacity: 1; }
+}
+
+@keyframes messageSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Scrollbar for Chat panel */
+.chat-panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-panel-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-panel-body::-webkit-scrollbar-thumb {
+  background-color: rgba(20, 184, 166, 0.25);
+  border-radius: 20px;
+}
+
+.chat-panel-body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary);
 }
 
 .chat-panel-footer {

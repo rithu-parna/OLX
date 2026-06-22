@@ -47,6 +47,7 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
     { sender: 'seller', text: `Hi there! Thanks for checking out my ${listing.title}. Let me know if you have any questions or would like to make an offer.`, time: 'Just now' }
   ]);
   const [newMsg, setNewMsg] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const chatBodyRef = useRef(null);
 
   // Sync bid value to listing price on load
@@ -59,7 +60,7 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isTyping]);
 
   const handlePresetBid = (percentage) => {
     const calculated = Math.round(listing.price * (1 + percentage));
@@ -100,7 +101,9 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
   };
 
   const simulateSellerReply = () => {
+    setIsTyping(true);
     setTimeout(() => {
+      setIsTyping(false);
       const categoryReplies = mockReplies[listing.category] || [
         "Thanks for the message! Let me get back to you shortly.",
         "Is this still available? Yes, it is!",
@@ -310,6 +313,15 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
                     <div className="chat-msg-time">{msg.time}</div>
                   </div>
                 ))}
+                {isTyping && (
+                  <div className="chat-msg seller typing" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <div className="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <form className="chat-panel-footer" onSubmit={handleSendText}>

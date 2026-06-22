@@ -24,8 +24,9 @@ export default function CategoryChips({ categories, selectedCategory, setSelecte
             className={`category-chip ${isActive ? 'active' : ''}`}
             onClick={() => setSelectedCategory(cat.id)}
           >
-            <IconComponent size={16} />
+            <IconComponent size={16} className={isActive ? 'category-chip-active-icon' : ''} />
             <span>{cat.name}</span>
+            {isActive && <span className="active-chip-indicator" />}
           </button>
         );
       })}
