@@ -1,47 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Play, Maximize2, Minimize2, Send, MapPin, Star, Calendar, ShieldCheck, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
+import { X, Heart, Share, Play, MapPin, Star, ShieldCheck, Camera, Activity, ArrowRight, ChevronLeft, ChevronRight, MessageSquare, Phone, Sparkles } from 'lucide-react';
 
-const mockReplies = {
-  cars: [
-    "Thank you for the offer. The Porsche is in pristine condition. Would you like to schedule a viewing at DTLA this Saturday?",
-    "Hi there. I have a few viewings scheduled, but if you can make a deposit, I can hold the vehicle for you.",
-    "Yes, the service history is completely documented at the local dealership. No accidents at all."
-  ],
-  properties: [
-    "Hello! The Malibu Villa is open for private showings. We require proof of funds prior to booking a tour. Let me know if you would like to proceed.",
-    "Yes, the property is fully smart-home enabled and the solar integration yields excellent energy savings.",
-    "The listing price is slightly negotiable for cash buyers. Please let me know your timeline."
-  ],
-  electronics: [
-    "Hey! Yes, the iPhone has AppleCare+ active. The battery health is exactly 100%.",
-    "I can meet up in Manhattan tomorrow if you want to buy it.",
-    "No scratches at all, it was in a leather case since day one."
-  ],
-  watches: [
-    "Hi, yes, this Rolex Submariner is a 2023 model, complete set with box and original papers.",
-    "The price is firm at $15,400. This model is trading higher on the grey market.",
-    "I can meet at a secure bank or authorized dealer in Miami for verification."
-  ],
-  audio: [
-    "Hi, yes, the headphones function perfectly. Minor scuff on headband but earmuffs are pristine.",
-    "I can ship them via USPS if you pay for postage, or we can meet in Seattle.",
-    "Yes, the original travel case and cables are included."
-  ],
-  drones: [
-    "Thanks for the inquiry. The DJI Mavic Cine has never been crashed and has under 5 hours of total flight time.",
-    "Yes, the built-in 1TB SSD is perfect for high-speed Apple ProRes filming.",
-    "I can do $3,500 if you pick it up today."
-  ]
-};
-
-export default function DetailView({ listing, onClose, onSendChatMessage }) {
+export default function DetailView({ listing, onClose, onSendChatMessage, listings, onSelectListing }) {
   const [activeMediaTab, setActiveMediaTab] = useState('image'); // 'image' or 'video'
   const [activeImgIndex, setActiveImgIndex] = useState(0);
-  const [isGalleryExpanded, setIsGalleryExpanded] = useState(false); // Collapses details sidebar
-  
-  // Offer / Bidding Slider States
   const [bidValue, setBidValue] = useState(listing.price);
-  
+
   // Chat States
   const [messages, setMessages] = useState([
     { sender: 'seller', text: `Hi there! Thanks for checking out my ${listing.title}. Let me know if you have any questions or would like to make an offer.`, time: 'Just now' }
@@ -50,9 +14,11 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
   const [isTyping, setIsTyping] = useState(false);
   const chatBodyRef = useRef(null);
 
-  // Sync bid value to listing price on load
+  // Sync bid value on listing change
   useEffect(() => {
     setBidValue(listing.price);
+    setActiveImgIndex(0);
+    setActiveMediaTab('image');
   }, [listing]);
 
   // Scroll chat to bottom
@@ -69,17 +35,14 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
 
   const handleSendOffer = () => {
     const offerMessage = `Hello, I would like to submit an offer of $${bidValue.toLocaleString()} for this item. Is this acceptable?`;
-    
+
     // Add user message
     const userMsg = { sender: 'user', text: offerMessage, time: 'Just now' };
     setMessages(prev => [...prev, userMsg]);
-    
-    // Notify app state for global inbox
+
     if (onSendChatMessage) {
       onSendChatMessage(listing.id, offerMessage);
     }
-
-    // Trigger seller reply simulation
     simulateSellerReply();
   };
 
@@ -89,14 +52,12 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
 
     const userMsg = { sender: 'user', text: newMsg, time: 'Just now' };
     setMessages(prev => [...prev, userMsg]);
-    
+
     if (onSendChatMessage) {
       onSendChatMessage(listing.id, newMsg);
     }
 
     setNewMsg('');
-
-    // Trigger seller reply simulation
     simulateSellerReply();
   };
 
@@ -104,15 +65,13 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
-      const categoryReplies = mockReplies[listing.category] || [
-        "Thanks for the message! Let me get back to you shortly.",
-        "Is this still available? Yes, it is!",
-        "Let me know if you want to meet up to check the item."
+      const replies = [
+        "Yes, the price is negotiable but only slightly.",
+        "It is in perfect condition, basically new.",
+        "I can meet tomorrow at a secure public location.",
+        "Let me know if you have any other questions!"
       ];
-      
-      // Select random reply
-      const randomReply = categoryReplies[Math.floor(Math.random() * categoryReplies.length)];
-      
+      const randomReply = replies[Math.floor(Math.random() * replies.length)];
       setMessages(prev => [
         ...prev,
         { sender: 'seller', text: randomReply, time: 'Just now' }
@@ -120,184 +79,358 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
     }, 1500);
   };
 
+  // Related items
+  const relatedListings = listings
+    ? listings.filter(item => item.id !== listing.id).slice(0, 5)
+    : [];
+
+  const getSpecIcon = (key) => {
+    const k = key.toLowerCase();
+    if (k.includes('camera') || k.includes('lens')) return <Camera size={16} />;
+    if (k.includes('flight') || k.includes('time') || k.includes('battery') || k.includes('engine') || k.includes('speed')) return <Activity size={16} />;
+    if (k.includes('video') || k.includes('resolution') || k.includes('screen') || k.includes('model')) return <Play size={16} />;
+    return <ArrowRight size={16} />;
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="detail-modal-container glass-panel" onClick={(e) => e.stopPropagation()}>
+
         {/* Header */}
         <div className="detail-modal-header">
-          <div className="detail-modal-title-area">
-            <button className="detail-back-btn" onClick={onClose} aria-label="Go back">
-              <X size={20} />
+          <div className="detail-modal-header-left">
+            <button className="close-x-btn" onClick={onClose} aria-label="Close dialog">
+              <X size={16} />
             </button>
-            <span className="detail-modal-title">Item Details</span>
+            <span className="header-title">Product Details</span>
           </div>
-          <div className="detail-modal-actions">
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>ID: #{listing.id}109</span>
+          <div className="detail-modal-header-right">
+            <span className="item-id-label">ID: #{listing.id}109</span>
+            <button className="header-save-btn">
+              <Heart size={14} />
+              <span>Save</span>
+            </button>
+            <button className="header-share-btn">
+              <Share size={14} />
+            </button>
+            <button className="close-x-btn" onClick={onClose} aria-label="Close dialog">
+              <X size={16} />
+            </button>
           </div>
         </div>
 
-        {/* Contents Grid */}
-        <div className={`detail-modal-content-grid ${isGalleryExpanded ? 'gallery-expanded' : ''}`}>
-          
-          {/* Media Viewport (Left) */}
-          <div className="detail-media-area">
-            {/* Viewport tabs */}
-            <div className="media-mode-overlay-tabs">
-              <button 
-                className={`media-tab-btn ${activeMediaTab === 'image' ? 'active' : ''}`}
-                onClick={() => setActiveMediaTab('image')}
-              >
-                <ImageIcon size={14} />
-                <span>Images</span>
-              </button>
-              {listing.video && (
-                <button 
-                  className={`media-tab-btn ${activeMediaTab === 'video' ? 'active' : ''}`}
-                  onClick={() => setActiveMediaTab('video')}
-                >
-                  <VideoIcon size={14} />
-                  <span>Video Tour</span>
-                </button>
-              )}
-            </div>
+        {/* Two-Column Grid Area */}
+        <div className="detail-grid-layout">
 
-            {/* Collapse/Expand Sidebar Toggle */}
-            <div className="gallery-toggle-overlay">
-              <button 
-                className="gallery-toggle-btn"
-                onClick={() => setIsGalleryExpanded(!isGalleryExpanded)}
-                title={isGalleryExpanded ? "Show Details" : "Fullscreen Gallery"}
-              >
-                {isGalleryExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-                <span>{isGalleryExpanded ? 'Collapse Media' : 'Expand Media'}</span>
-              </button>
-            </div>
+          {/* Left Panel: Media Viewport, Badges & AI Pricing Insight */}
+          <div className="detail-left-column">
 
-            {/* Main Viewport */}
-            <div className="media-viewport-container">
-              {activeMediaTab === 'image' ? (
-                <img 
-                  src={listing.images[activeImgIndex]} 
-                  alt={listing.title} 
-                  className="viewport-media-content"
-                />
-              ) : (
-                <video 
-                  src={listing.video} 
-                  className="viewport-media-content"
-                  controls
-                  autoPlay
-                  muted
-                />
-              )}
-            </div>
-
-            {/* Thumbnail Strip */}
-            {activeMediaTab === 'image' && (
-              <div className="detail-thumbnails-strip">
+            <div className="media-section-row">
+              {/* Vertical Thumbnail Strip */}
+              <div className="vertical-thumbnails-strip">
                 {listing.images.map((img, idx) => (
-                  <div 
+                  <button
                     key={idx}
-                    className={`thumb-wrapper ${idx === activeImgIndex ? 'active' : ''}`}
-                    onClick={() => setActiveImgIndex(idx)}
+                    className={`vertical-thumb-btn ${idx === activeImgIndex ? 'active' : ''}`}
+                    onClick={() => {
+                      setActiveImgIndex(idx);
+                      setActiveMediaTab('image');
+                    }}
                   >
-                    <img src={img} alt="" className="thumb-img" />
+                    <img src={img} alt="" className="vertical-thumb-img" />
+                  </button>
+                ))}
+                {listing.images.length > 3 && (
+                  <div className="more-photos-badge">
+                    <span className="more-photos-text">+{listing.images.length + 8}</span>
+                    <span className="more-photos-sub">Photos</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Main Viewport */}
+              <div className="main-media-viewport">
+                {/* Overlay Badges (Top Left) */}
+                <div className="viewport-overlay-badges">
+                  <span className="viewport-badge trending"><span className="badge-dot">🔥</span> Trending</span>
+                  <span className="viewport-badge verified"><span className="badge-dot">🟢</span> Verified</span>
+                  <span className="viewport-badge premium"><span className="badge-dot">⭐</span> Premium Seller</span>
+                </div>
+
+                {/* Main Media Content */}
+                <div className="viewport-media-wrapper">
+                  {activeMediaTab === 'image' ? (
+                    <img
+                      src={listing.images[activeImgIndex]}
+                      alt={listing.title}
+                      className="viewport-media-img"
+                    />
+                  ) : (
+                    <video
+                      src={listing.video}
+                      className="viewport-media-video"
+                      controls
+                      autoPlay
+                      muted
+                      loop
+                    />
+                  )}
+                </div>
+
+                {/* Media Control Overlays (Bottom Center) */}
+                <div className="viewport-media-controls">
+                  <button className="viewport-control-btn">
+                    <span>🔄 360° View</span>
+                  </button>
+                  <button className="viewport-control-btn">
+                    <span>📐 AR Preview</span>
+                  </button>
+                  {listing.video && (
+                    <button
+                      className={`viewport-control-btn ${activeMediaTab === 'video' ? 'active' : ''}`}
+                      onClick={() => setActiveMediaTab(activeMediaTab === 'video' ? 'image' : 'video')}
+                    >
+                      <span>▶️ Play Video</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* AI Pricing Insight Banner */}
+            <div className="ai-pricing-insight-card">
+              <div className="ai-insight-left">
+                <div className="ai-avatar-pulse">
+                  <Sparkles size={18} className="ai-spark-icon" />
+                </div>
+                <div className="ai-insight-text">
+                  <h4 className="ai-insight-title">AI Pricing Insight</h4>
+                  <p className="ai-insight-desc">
+                    This item is priced 8% below the current market average. Great time to buy! 🔥
+                  </p>
+                </div>
+              </div>
+              <div className="ai-insight-right">
+                <div className="market-stat">
+                  <span className="stat-label">Market Average</span>
+                  <span className="stat-val">${Math.round(listing.price * 1.09).toLocaleString()}</span>
+                </div>
+                <div className="market-stat">
+                  <span className="stat-label">You Save</span>
+                  <span className="stat-val highlight">${Math.round(listing.price * 0.09).toLocaleString()} (8%)</span>
+                </div>
+                {/* SVG Sparkline */}
+                <div className="ai-sparkline-svg">
+                  <svg viewBox="0 0 60 20" width="60" height="20">
+                    <path d="M 0 15 Q 15 5, 30 12 T 60 2" fill="none" stroke="#2dd4bf" strokeWidth="2" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* RELATED ITEMS CAROUSEL */}
+            <div className="related-items-section">
+              <h3 className="section-title-label">You May Also Like</h3>
+              <div className="related-items-carousel">
+                {relatedListings.map((item) => (
+                  <div
+                    key={item.id}
+                    className="related-item-card glass-panel"
+                    onClick={() => {
+                      if (onSelectListing) onSelectListing(item);
+                    }}
+                  >
+                    <div className="related-card-media">
+                      <img src={item.images[0]} alt={item.title} className="related-card-img" />
+                      <span className="related-card-price">${item.price.toLocaleString()}</span>
+                    </div>
+                    <div className="related-card-info">
+                      <h4 className="related-card-title">{item.title}</h4>
+                      <div className="related-card-meta">
+                        <MapPin size={10} />
+                        <span>{item.location.split(',')[0]}</span>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
-            )}
+            </div>
+
           </div>
 
-          {/* Details Sidebar (Right) */}
-          <div className="detail-sidebar">
-            <div className="detail-price-box">
-              <span className="detail-price">${listing.price.toLocaleString()}</span>
-              <span className="detail-condition-badge">{listing.condition}</span>
-            </div>
+          {/* Right Panel: Title, Bidding, Seller info, Specs */}
+          <div className="detail-right-column">
 
-            <h2 className="detail-title">{listing.title}</h2>
-
-            <div className="detail-meta-tags">
-              <div className="detail-meta-tag">
-                <MapPin size={14} className="logo-highlight" />
-                <span>{listing.location}</span>
+            {/* Title & Condition */}
+            <div className="title-section-block">
+              <div className="title-row-container">
+                <h2 className="product-main-title">{listing.title}</h2>
+                <span className="product-condition-badge">🟢 {listing.condition}</span>
               </div>
-              <div className="detail-meta-tag">
-                <Calendar size={14} className="logo-highlight" />
-                <span>{listing.postedDate}</span>
+              <div className="product-meta-row">
+                <span className="meta-item">📍 {listing.location}</span>
+                <span className="meta-item">⏰ {listing.postedDate}</span>
               </div>
             </div>
 
-            {/* Interactive Offer Slider Section */}
-            <div className="bid-slider-section glass-panel" style={{ background: 'var(--bg-tertiary)' }}>
-              <div className="bid-slider-header">
-                <span>Make an Offer</span>
-                <span className="bid-amount">${bidValue.toLocaleString()}</span>
-              </div>
-              
-              <input
-                type="range"
-                className="bid-range-input"
-                min={Math.round(listing.price * 0.7)} // Min offer 70% of price
-                max={Math.round(listing.price * 1.15)} // Max offer 115% of price
-                step={listing.price > 100000 ? 5000 : listing.price > 10000 ? 500 : 50}
-                value={bidValue}
-                onChange={(e) => setBidValue(Number(e.target.value))}
-              />
-
-              <div className="bid-presets">
-                <button className="bid-preset-btn" onClick={() => handlePresetBid(-0.1)}>-10%</button>
-                <button className="bid-preset-btn" onClick={() => handlePresetBid(-0.05)}>-5%</button>
-                <button className="bid-preset-btn" onClick={() => setBidValue(listing.price)}>Ask Price</button>
-                <button className="bid-preset-btn" onClick={() => handlePresetBid(0.05)}>+5%</button>
+            {/* Pricing Section */}
+            <div className="pricing-section-block">
+              <div className="pricing-left">
+                <span className="pricing-main-value">${listing.price.toLocaleString()}</span>
+                <div className="pricing-savings-row">
+                  <span className="market-value-label">Market Value ${Math.round(listing.price * 1.12).toLocaleString()}</span>
+                  <span className="save-amount-badge">Save ${Math.round(listing.price * 0.12).toLocaleString()} (11%)</span>
+                </div>
               </div>
 
-              <button className="bid-action-btn" onClick={handleSendOffer}>
-                Submit Custom Offer
-              </button>
+              <div className="pricing-trend-box">
+                <div className="pricing-trend-info">
+                  <span className="trend-title">Price Trend</span>
+                  <span className="trend-desc">⬇️ 11% vs last 30 days</span>
+                </div>
+                <div className="trend-sparkline-svg">
+                  <svg viewBox="0 0 50 20" width="50" height="20">
+                    <path d="M 0 5 L 15 12 L 30 8 L 50 18" fill="none" stroke="#ef4444" strokeWidth="2" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
-            {/* Seller profile card */}
-            <div className="seller-profile-section">
-              <div className="seller-info-left">
-                <img src={listing.seller.avatar} alt={listing.seller.name} className="seller-avatar-large" />
-                <div className="seller-name-row">
-                  <span className="seller-name">{listing.seller.name}</span>
-                  <div className="seller-rating-box">
-                    <Star size={12} fill="currentColor" />
-                    <span>{listing.seller.rating}</span>
-                    <span className="seller-rating-count">({listing.seller.listingsCount} ads)</span>
+            {/* Make an Offer Section */}
+            <div className="offer-section-block glass-panel">
+              <div className="offer-header-row">
+                <h4 className="offer-panel-title">Make an Offer</h4>
+                <span className="recommended-price-label">Recommended Price: ${Math.round(listing.price * 0.95).toLocaleString()}</span>
+              </div>
+
+              {/* Offer input */}
+              <div className="offer-input-container">
+                <span className="offer-currency-symbol">$</span>
+                <input
+                  type="text"
+                  className="offer-input-field"
+                  value={bidValue.toLocaleString()}
+                  onChange={(e) => setBidValue(Number(e.target.value.replace(/,/g, '')) || 0)}
+                />
+              </div>
+
+              {/* Presets */}
+              <div className="offer-presets-row">
+                <button className="offer-preset-btn" onClick={() => handlePresetBid(-0.1)}>-10%</button>
+                <button className="offer-preset-btn" onClick={() => handlePresetBid(-0.05)}>-5%</button>
+                <button className="offer-preset-btn" onClick={() => setBidValue(listing.price)}>Ask Price</button>
+                <button className="offer-preset-btn" onClick={() => handlePresetBid(0.05)}>+5%</button>
+              </div>
+
+              {/* Actions */}
+              <div className="offer-actions-row">
+                <button className="offer-submit-btn" onClick={handleSendOffer}>
+                  Submit Offer
+                </button>
+                <button className="offer-buynow-btn" onClick={handleSendOffer}>
+                  ⚡ Buy Now
+                </button>
+              </div>
+
+              {/* Guarantee items */}
+              <div className="offer-guarantees-grid">
+                <div className="guarantee-item">
+                  <span className="guarantee-icon">🛡️</span>
+                  <div>
+                    <span className="guarantee-title">Secure Payment</span>
+                    <span className="guarantee-desc">Escrow Protection</span>
+                  </div>
+                </div>
+                <div className="guarantee-item">
+                  <span className="guarantee-icon">🚚</span>
+                  <div>
+                    <span className="guarantee-title">Fast Shipping</span>
+                    <span className="guarantee-desc">2-3 Days Delivery</span>
+                  </div>
+                </div>
+                <div className="guarantee-item">
+                  <span className="guarantee-icon">🔄</span>
+                  <div>
+                    <span className="guarantee-title">Money Back</span>
+                    <span className="guarantee-desc">7 Days Guarantee</span>
                   </div>
                 </div>
               </div>
-              
-              <div className="seller-meta-details">
-                <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>Verified Pro</span>
-                <span>Replies in mins</span>
+            </div>
+
+            {/* Seller profile Section */}
+            <div className="seller-section-block glass-panel">
+              <div className="seller-header-info">
+                <div className="seller-left">
+                  <img src={listing.seller.avatar} alt={listing.seller.name} className="seller-avatar-icon" />
+                  <div className="seller-name-col">
+                    <span className="seller-name-label">{listing.seller.name} <span className="verified-badge-inline">🟢 Verified Pro</span></span>
+                    <span className="seller-rating-sub">⭐ 4.9 (128 reviews)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Metrics grid */}
+              <div className="seller-metrics-grid">
+                <div className="seller-metric-card">
+                  <span className="metric-val">98%</span>
+                  <span className="metric-lbl">Positive Rating</span>
+                </div>
+                <div className="seller-metric-card">
+                  <span className="metric-val">320</span>
+                  <span className="metric-lbl">Transactions</span>
+                </div>
+                <div className="seller-metric-card">
+                  <span className="metric-val">7+</span>
+                  <span className="metric-lbl">Years Selling</span>
+                </div>
+                <div className="seller-metric-card">
+                  <span className="metric-val">&lt; 2min</span>
+                  <span className="metric-lbl">Response Time</span>
+                </div>
+              </div>
+
+              {/* Communication actions */}
+              <div className="seller-comm-actions">
+                <button className="seller-comm-btn chat" onClick={() => {
+                  // Scroll to chat
+                  if (chatBodyRef.current) {
+                    chatBodyRef.current.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}>
+                  <MessageSquare size={14} />
+                  <span>Message</span>
+                </button>
+                <button className="seller-comm-btn call">
+                  <Phone size={14} />
+                  <span>Call Seller</span>
+                </button>
               </div>
             </div>
 
             {/* Specifications Section */}
-            <div className="specs-section">
-              <h3 className="specs-title">Product Details</h3>
-              <div className="specs-grid">
-                {Object.entries(listing.specs || {}).map(([key, value]) => (
-                  <div key={key} className="spec-item">
-                    <span className="spec-label">{key}</span>
-                    <span className="spec-value">{value}</span>
+            <div className="specifications-section-block">
+              <div className="spec-header-row">
+                <h3 className="spec-section-title">Product Specifications</h3>
+                <span className="spec-view-all-link">View All →</span>
+              </div>
+              <div className="specifications-grid">
+                {Object.entries(listing.specs || {}).slice(0, 4).map(([key, value]) => (
+                  <div key={key} className="specifications-card glass-panel">
+                    <div className="spec-card-icon-wrapper">
+                      {getSpecIcon(key)}
+                    </div>
+                    <div className="spec-card-content">
+                      <span className="spec-card-label">{key}</span>
+                      <span className="spec-card-value">{value}</span>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Description Section */}
-            <div className="description-section">
-              <h3 className="description-title">Description</h3>
-              <p className="description-text">{listing.description}</p>
-            </div>
-
-            {/* Interactive Chat Console */}
-            <div className="live-chat-panel">
+            {/* Chat Conversation Console */}
+            <div className="live-chat-panel glass-panel">
               <div className="chat-panel-header">
                 <span className="chat-panel-title">
                   <span className="chat-status-dot"></span>
@@ -305,7 +438,7 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
                 </span>
                 <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600 }}>Active Now</span>
               </div>
-              
+
               <div className="chat-panel-body" ref={chatBodyRef}>
                 {messages.map((msg, idx) => (
                   <div key={idx} className={`chat-msg ${msg.sender}`}>
@@ -333,18 +466,20 @@ export default function DetailView({ listing, onClose, onSendChatMessage }) {
                   onChange={(e) => setNewMsg(e.target.value)}
                 />
                 <button type="submit" className="chat-panel-send-btn">
-                  <Send size={14} />
+                  <X size={14} style={{ transform: 'rotate(45deg)' }} />
                 </button>
               </form>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--text-muted)', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--text-muted)', justifyContent: 'center', marginTop: '16px' }}>
               <ShieldCheck size={14} style={{ color: 'var(--color-success)' }} />
               <span>Purchase safety tips: Meet in a public place. Do not pay in advance.</span>
             </div>
+
           </div>
 
         </div>
+
       </div>
     </div>
   );
