@@ -340,8 +340,8 @@ export default function App() {
             setMaxPrice={setMaxPrice}
             selectedConditions={selectedConditions}
             setSelectedConditions={setSelectedConditions}
-            videoOnly={videoOnly}
-            setVideoOnly={setVideoOnly}
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
             onReset={handleResetFilters}
           />
 

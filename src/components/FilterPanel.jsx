@@ -1,5 +1,5 @@
 import React from 'react';
-import { Filter, Video, RotateCcw } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 export default function FilterPanel({
   minPrice,
@@ -8,11 +8,11 @@ export default function FilterPanel({
   setMaxPrice,
   selectedConditions,
   setSelectedConditions,
-  videoOnly,
-  setVideoOnly,
+  selectedLocation,
+  setSelectedLocation,
   onReset
 }) {
-  const maxLimit = 150000; // Cap limit for price range slider (excluding Malibu Villa which is 4.8M)
+  const maxLimit = 150000;
   
   const handleMinSlider = (e) => {
     const value = Math.min(Number(e.target.value), maxPrice - 1000);
@@ -32,50 +32,51 @@ export default function FilterPanel({
     }
   };
 
-  // Calculate percentage for dual range slider track styling
   const minPercent = (minPrice / maxLimit) * 100;
   const maxPercent = (maxPrice / maxLimit) * 100;
 
+  // Curated heights for pricing density wave
+  const densityHeights = [10, 18, 30, 48, 62, 75, 90, 80, 70, 82, 95, 60, 52, 40, 30, 25, 18, 12, 6, 4];
+
   return (
     <aside className="filters-panel glass-panel">
-      <h3 className="filter-title">
-        <Filter size={16} className="logo-highlight" />
-        Advanced Filters
-      </h3>
+      <div className="filter-header-row">
+        <h3 className="filter-panel-title">
+          <SlidersHorizontal size={14} className="filter-header-icon" />
+          <span>Advanced Filters</span>
+        </h3>
+        <button className="clear-all-filters-btn" onClick={onReset}>
+          Clear All
+        </button>
+      </div>
 
       {/* Price Range Filter */}
       <div className="filter-group">
-        <h4 className="filter-title" style={{ fontSize: '13px', marginBottom: '8px' }}>Price Range (Up to $150k)</h4>
+        <h4 className="filter-group-title">Price Range (Up to $150k)</h4>
         
-        <div className="price-slider-container">
-          <div className="price-inputs">
-            <div className="price-input-box">
-              <label>Min</label>
-              <div className="price-box-wrapper">
-                <span className="price-currency">$</span>
-                <input
-                  type="number"
-                  className="price-input-field"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(Math.max(0, Number(e.target.value)))}
+        {/* Price Label indicators */}
+        <div className="price-labels-row">
+          <span>$0</span>
+          <span className="current-max-price">${maxPrice.toLocaleString()}</span>
+        </div>
+
+        <div className="price-slider-wrapper">
+          {/* Wave/Density Histogram Chart */}
+          <div className="price-density-chart">
+            {densityHeights.map((height, idx) => {
+              const barPercent = (idx / densityHeights.length) * 100;
+              const isActive = barPercent >= minPercent && barPercent <= maxPercent;
+              return (
+                <div 
+                  key={idx} 
+                  className={`density-bar ${isActive ? 'active' : ''}`}
+                  style={{ height: `${height}%` }}
                 />
-              </div>
-            </div>
-            <div className="price-input-box">
-              <label>Max</label>
-              <div className="price-box-wrapper">
-                <span className="price-currency">$</span>
-                <input
-                  type="number"
-                  className="price-input-field"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Math.max(minPrice, Number(e.target.value)))}
-                />
-              </div>
-            </div>
+              );
+            })}
           </div>
 
-          {/* Visual Dual Slider */}
+          {/* Dual Range Sliders */}
           <div className="range-slider-visual">
             <div 
               className="range-slider-bar" 
@@ -85,12 +86,13 @@ export default function FilterPanel({
               }}
             ></div>
           </div>
+          
           <div className="range-slider-input-group">
             <input
               type="range"
               min="0"
               max={maxLimit}
-              step="500"
+              step="1000"
               value={minPrice}
               onChange={handleMinSlider}
               className="range-slider-input"
@@ -99,7 +101,7 @@ export default function FilterPanel({
               type="range"
               min="0"
               max={maxLimit}
-              step="500"
+              step="1000"
               value={maxPrice}
               onChange={handleMaxSlider}
               className="range-slider-input"
@@ -108,48 +110,49 @@ export default function FilterPanel({
         </div>
       </div>
 
-      {/* Conditions Checklist */}
+      {/* Conditions Section */}
       <div className="filter-group">
-        <h4 className="filter-title" style={{ fontSize: '13px', marginBottom: '12px' }}>Condition</h4>
-        <div>
-          {['New', 'Like New', 'Excellent', 'Good'].map((condition) => (
-            <label key={condition} className="checkbox-option">
-              <input
-                type="checkbox"
-                className="checkbox-input"
-                checked={selectedConditions.includes(condition)}
-                onChange={() => handleConditionToggle(condition)}
-              />
-              <span>{condition}</span>
-            </label>
-          ))}
+        <h4 className="filter-group-title">Condition</h4>
+        <div className="condition-pills-group">
+          <button 
+            className={`condition-pill ${selectedConditions.length === 0 ? 'active' : ''}`}
+            onClick={() => setSelectedConditions([])}
+          >
+            All
+          </button>
+          {['New', 'Like New', 'Excellent', 'Good'].map((condition) => {
+            const isActive = selectedConditions.includes(condition);
+            return (
+              <button
+                key={condition}
+                className={`condition-pill ${isActive ? 'active' : ''}`}
+                onClick={() => handleConditionToggle(condition)}
+              >
+                {condition}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Video Attached Filter Toggle */}
+      {/* Location Selector */}
       <div className="filter-group">
-        <div className="switch-wrapper" onClick={() => setVideoOnly(!videoOnly)}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Video size={16} className="logo-highlight" />
-            <span className="switch-label">Video Tour Only</span>
-          </div>
-          <div className="switch-control-wrapper">
-            <input
-              type="checkbox"
-              className="switch-checkbox"
-              checked={videoOnly}
-              onChange={() => {}} // Controlled by wrapper click
-            />
-            <div className="switch-control"></div>
-          </div>
+        <h4 className="filter-group-title">Location</h4>
+        <div className="location-select-wrapper">
+          <select 
+            value={selectedLocation || ''} 
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            className="location-select-field"
+          >
+            <option value="">All Locations</option>
+            <option value="Miami, FL">Miami, FL</option>
+            <option value="Los Angeles, CA">Los Angeles, CA</option>
+            <option value="New York, NY">New York, NY</option>
+            <option value="San Francisco, CA">San Francisco, CA</option>
+          </select>
+          <ChevronDown size={14} className="dropdown-arrow-icon" />
         </div>
       </div>
-
-      {/* Reset Button */}
-      <button className="reset-filters-btn" onClick={onReset}>
-        <RotateCcw size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-        Reset Filters
-      </button>
     </aside>
   );
 }

@@ -56,11 +56,18 @@ export default function ListingCard({ listing, onSelect, isSaved, onToggleSave }
 
         {/* Badges */}
         <div className="badge-overlay-container">
-          {listing.featured && <span className="card-badge featured">Promoted</span>}
+          {listing.id === 1 || listing.id === 3 || listing.id === 6 ? (
+            <span className="card-badge promoted-badge">PROMOTED</span>
+          ) : listing.id === 2 ? (
+            <span className="card-badge featured-badge">FEATURED</span>
+          ) : (
+            <span className="card-badge trending-badge">TRENDING</span>
+          )}
+          
           {listing.video && (
             <span className="card-badge video-badge">
               <Play size={10} fill="#fff" />
-              <span>Video tour</span>
+              <span>VIDEO TOUR</span>
             </span>
           )}
         </div>
@@ -77,21 +84,27 @@ export default function ListingCard({ listing, onSelect, isSaved, onToggleSave }
 
       {/* Info Body */}
       <div className="card-info">
-        <div>
-          <div className="card-price-row">
-            <span className="card-price">${listing.price.toLocaleString()}</span>
-            <span className="card-condition">{listing.condition}</span>
-          </div>
-          <h3 className="card-title">{listing.title}</h3>
-        </div>
-
-        <div className="card-footer">
+        <h3 className="card-title">{listing.title}</h3>
+        <span className="card-price">${listing.price.toLocaleString()}</span>
+        
+        <div className="card-location-row">
           <span className="card-location">
-            <MapPin size={12} style={{ marginRight: '2px', flexShrink: 0 }} />
+            <MapPin size={12} style={{ marginRight: '4px', flexShrink: 0 }} />
             {listing.location.split(',')[0]}
           </span>
-          <span>{listing.postedDate}</span>
+          <span className="card-time">{listing.postedDate}</span>
         </div>
+
+        {/* Specs tags footer */}
+        {listing.specs && (
+          <div className="card-specs-tags">
+            {Object.entries(listing.specs).slice(0, 4).map(([key, value]) => (
+              <span key={key} className="card-spec-tag">
+                {value}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
