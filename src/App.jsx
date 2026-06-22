@@ -432,6 +432,8 @@ export default function App() {
           listing={selectedListing}
           onClose={() => setSelectedListing(null)}
           onSendChatMessage={handleSendChatMessage}
+          listings={listings}
+          onSelectListing={handleSelectListing}
         />
       )}
 
