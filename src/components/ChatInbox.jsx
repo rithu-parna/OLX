@@ -5,7 +5,9 @@ export default function ChatInbox({
   isOpen, 
   onClose, 
   chats, 
-  onSendMessage 
+  onSendMessage,
+  onSelectListing,
+  listings
 }) {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [typedMessage, setTypedMessage] = useState('');
@@ -68,9 +70,35 @@ export default function ChatInbox({
             /* Chats List */
             <div className="chat-inbox-list">
               {chats.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
-                  <MessageSquare size={36} style={{ marginBottom: '12px', opacity: 0.5 }} />
-                  <p>No conversations yet</p>
+                <div className="chat-empty-state">
+                  <div className="lottie-svg-wrapper">
+                    <svg className="chat-empty-svg" viewBox="0 0 100 100" width="100" height="100">
+                      <defs>
+                        <radialGradient id="chatGrad" cx="50%" cy="50%" r="50%">
+                          <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.15" />
+                          <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+                        </radialGradient>
+                      </defs>
+                      <circle cx="50" cy="50" r="45" fill="url(#chatGrad)" />
+                      {/* Left message bubble */}
+                      <g className="empty-chat-left-bubble">
+                        <rect x="25" y="32" width="34" height="22" rx="10" fill="var(--bg-tertiary)" stroke="var(--border-color)" strokeWidth="1.5" />
+                        <polygon points="32,54 28,62 38,54" fill="var(--bg-tertiary)" stroke="var(--border-color)" strokeWidth="1.5" strokeLinejoin="miter" />
+                        <line x1="33" y1="40" x2="51" y2="40" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+                        <line x1="33" y1="46" x2="45" y2="46" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+                      </g>
+                      {/* Right message bubble */}
+                      <g className="empty-chat-right-bubble">
+                        <rect x="42" y="44" width="34" height="22" rx="10" fill="var(--color-primary-light)" stroke="var(--color-primary)" strokeWidth="1.5" />
+                        <polygon points="68,66 72,74 62,66" fill="var(--color-primary-light)" stroke="var(--color-primary)" strokeWidth="1.5" strokeLinejoin="miter" />
+                        <circle className="dot-blink-1" cx="50" cy="55" r="2" fill="var(--color-primary)" />
+                        <circle className="dot-blink-2" cx="59" cy="55" r="2" fill="var(--color-primary)" />
+                        <circle className="dot-blink-3" cx="68" cy="55" r="2" fill="var(--color-primary)" />
+                      </g>
+                    </svg>
+                  </div>
+                  <h4 className="chat-empty-title">Inbox is Empty</h4>
+                  <p className="chat-empty-desc">Send offers or messages to sellers to start a luxury negotiation!</p>
                 </div>
               ) : (
                 chats.map((chat) => {
@@ -104,14 +132,38 @@ export default function ChatInbox({
             <div style={{ display: 'flex', flexDirection: 'column', flex: 1, height: 'calc(100vh - 150px)' }}>
               
               {/* Product Info Bar */}
-              <div style={{ padding: '12px 20px', background: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ overflow: 'hidden' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Inquiring About</div>
+              <div 
+                className="chat-product-info-bar"
+                onClick={() => {
+                  if (activeChat && onSelectListing && listings) {
+                    const targetItem = listings.find(item => item.id === activeChat.listingId);
+                    if (targetItem) {
+                      onSelectListing(targetItem);
+                      onClose();
+                    }
+                  }
+                }}
+                style={{ 
+                  padding: '12px 20px', 
+                  background: 'var(--bg-tertiary)', 
+                  borderBottom: '1px solid var(--border-color)', 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease'
+                }}
+              >
+                <div style={{ overflow: 'hidden', flex: 1 }}>
+                  <div style={{ fontSize: '10px', color: 'var(--color-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span>Inquiring About</span>
+                    <span style={{ fontSize: '9px', background: 'var(--color-primary-light)', padding: '1px 5px', borderRadius: '4px' }}>View Details</span>
+                  </div>
                   <div style={{ fontSize: '13px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-primary)' }}>
                     {activeChat?.itemTitle}
                   </div>
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-primary)', marginLeft: '12px' }}>
+                <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-primary)', marginLeft: '12px', whiteSpace: 'nowrap' }}>
                   ${activeChat?.itemPrice.toLocaleString()}
                 </div>
               </div>

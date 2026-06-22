@@ -42,11 +42,20 @@ export default function App() {
   const [showChatsDrawer, setShowChatsDrawer] = useState(false);
   const [showDashboardDrawer, setShowDashboardDrawer] = useState(false);
 
+  const [loading, setLoading] = useState(true);
+
   // Apply theme to document element
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -255,6 +264,24 @@ export default function App() {
 
   const featuredListings = listings.filter(item => item.featured);
 
+  if (loading) {
+    return (
+      <div className="overall-preloader">
+        <div className="preloader-content">
+          <div className="preloader-logo-wrapper">
+            <img src="/logo.svg" className="preloader-logo" alt="OLX Luxe" />
+            <div className="preloader-glow"></div>
+          </div>
+          <h1 className="preloader-title">OLX <span className="logo-highlight">Luxe</span></h1>
+          <p className="preloader-subtitle">Loading Luxury Marketplace...</p>
+          <div className="preloader-bar-wrapper">
+            <div className="preloader-bar"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Top Header */}
@@ -343,9 +370,31 @@ export default function App() {
             </div>
 
             {sortedListings.length === 0 ? (
-              <div className="empty-state glass-panel">
-                <div className="empty-icon-wrapper">
-                  <Sparkles size={32} />
+              <div className="empty-state glass-panel animate-fade-in">
+                <div className="lottie-svg-wrapper">
+                  <svg className="no-data-svg" viewBox="0 0 200 200" width="160" height="160">
+                    <defs>
+                      <linearGradient id="svgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="var(--color-secondary)" stopOpacity="0.05" />
+                      </linearGradient>
+                    </defs>
+                    {/* Background floating circles */}
+                    <circle cx="100" cy="100" r="80" fill="url(#svgGrad)" />
+                    <circle className="pulse-ring" cx="100" cy="100" r="60" fill="none" stroke="var(--color-primary)" strokeWidth="1" strokeDasharray="4 4" opacity="0.4" />
+                    <circle className="pulse-ring-slow" cx="100" cy="100" r="40" fill="none" stroke="var(--color-secondary)" strokeWidth="1" opacity="0.3" />
+                    
+                    {/* Box outline */}
+                    <path className="floating-box" d="M70,90 L100,75 L130,90 L130,120 L100,135 L70,120 Z" fill="none" stroke="var(--text-secondary)" strokeWidth="2.5" strokeLinejoin="round" />
+                    <path className="floating-box" d="M70,90 L100,105 L130,90 M100,105 L100,135" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinejoin="round" opacity="0.7" />
+                    
+                    {/* Magnifying Glass */}
+                    <g className="searching-lens">
+                      <circle cx="120" cy="70" r="16" fill="var(--bg-secondary)" stroke="var(--color-primary)" strokeWidth="3" />
+                      <line x1="131" y1="81" x2="148" y2="98" stroke="var(--color-primary)" strokeWidth="3.5" strokeLinecap="round" />
+                      <circle cx="116" cy="66" r="6" fill="none" stroke="var(--color-secondary)" strokeWidth="1.5" opacity="0.5" />
+                    </g>
+                  </svg>
                 </div>
                 <h3 className="empty-title">No Ads Found</h3>
                 <p className="empty-desc">
@@ -400,6 +449,8 @@ export default function App() {
         onClose={() => setShowChatsDrawer(false)}
         chats={chats}
         onSendMessage={handleInboxSendMessage}
+        onSelectListing={handleSelectListing}
+        listings={listings}
       />
 
       {/* 4. Seller Hub & Analytics Drawer */}
