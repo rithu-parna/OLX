@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="luxeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488" />
+      <stop offset="50%" stop-color="#14b8a6" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feColorMatrix type="matrix" values="0 0 0 0 0.05   0 0 0 0 0.58   0 0 0 0 0.53  0 0 0 0.4 0" />
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Outer Ring -->
+  <circle cx="50" cy="50" r="42" fill="none" stroke="url(#luxeGrad)" stroke-width="3.5" opacity="0.8" />
+  <!-- Inner Ring -->
+  <circle cx="50" cy="50" r="30" fill="none" stroke="url(#luxeGrad)" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6" />
+  <!-- Premium Diamond Star Crest -->
+  <path d="M 50 18 
+           L 54 42 
+           L 78 30 
+           L 58 46 
+           L 82 50 
+           L 58 54 
+           L 78 70 
+           L 54 58 
+           L 50 82 
+           L 46 58 
+           L 22 70 
+           L 42 54 
+           L 18 50 
+           L 42 46 
+           L 22 30 
+           L 46 42 Z" 
+        fill="url(#luxeGrad)" 
+        filter="url(#glow)" />
+  <circle cx="50" cy="50" r="5" fill="#ffffff" />
+</svg>
