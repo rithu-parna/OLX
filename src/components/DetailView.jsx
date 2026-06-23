@@ -222,7 +222,7 @@ export default function DetailView({ listing, onClose, onSendChatMessage, listin
                 {/* SVG Sparkline */}
                 <div className="ai-sparkline-svg">
                   <svg viewBox="0 0 60 20" width="60" height="20">
-                    <path d="M 0 15 Q 15 5, 30 12 T 60 2" fill="none" stroke="#2dd4bf" strokeWidth="2" />
+                    <path d="M 0 15 Q 15 5, 30 12 T 60 2" fill="none" stroke="#14b8a6" strokeWidth="2" />
                   </svg>
                 </div>
               </div>
