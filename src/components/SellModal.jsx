@@ -16,7 +16,7 @@ const mockVideos = [
   'https://assets.mixkit.co/videos/preview/mixkit-wrist-watch-in-close-up-42099-large.mp4'
 ];
 
-export default function SellModal({ onClose, onPublish }) {
+export default function SellModal({ onClose, onPublish, currentUser }) {
   const [step, setStep] = useState(1);
   const [category, setCategory] = useState('cars');
   const [title, setTitle] = useState('');
@@ -80,12 +80,12 @@ export default function SellModal({ onClose, onPublish }) {
       video: videoUrl.trim() || mockVideos[0], // fallback video loop
       featured: true,
       seller: {
-        name: 'Victoria Luxe Watches',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-        rating: 4.9,
-        responseRate: '100%',
-        listingsCount: 30,
-        joined: 'Jun 2026'
+        name: currentUser ? currentUser.name : 'Victoria Luxe Watches',
+        avatar: currentUser ? currentUser.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        rating: currentUser ? (currentUser.rating || 5.0) : 4.9,
+        responseRate: currentUser ? (currentUser.responseRate || '100%') : '100%',
+        listingsCount: currentUser ? ((currentUser.listingsCount || 0) + 1) : 30,
+        joined: currentUser ? (currentUser.joined || 'Jun 2026') : 'Jun 2026'
       },
       stats: { views: 0, clicks: 0, offers: 0 },
       specs
