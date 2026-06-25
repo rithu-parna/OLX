@@ -21,7 +21,10 @@ export default function Header({
   onOpenSell,
   onOpenChats,
   onOpenDashboard,
-  listings
+  listings,
+  currentUser,
+  onOpenLogin,
+  onLogout
 }) {
   const [showLocDropdown, setShowLocDropdown] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -153,14 +156,54 @@ export default function Header({
             <span>SELL</span>
           </button>
 
-          {/* User Profile Avatar */}
-          <button className="profile-widget" onClick={onOpenDashboard} title="My Profile">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-              alt="User profile"
-              className="profile-avatar"
-            />
-          </button>
+          {/* User Profile Avatar / Sign In */}
+          {currentUser ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button className="profile-widget" onClick={onOpenDashboard} title="Seller Dashboard">
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  className="profile-avatar"
+                />
+              </button>
+              <button 
+                className="action-btn" 
+                onClick={onLogout} 
+                title="Log Out"
+                style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  fontSize: '10px', 
+                  fontWeight: '800', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  color: 'var(--color-danger)',
+                  borderColor: 'rgba(239, 68, 68, 0.2)'
+                }}
+              >
+                OFF
+              </button>
+            </div>
+          ) : (
+            <button 
+              className="action-btn" 
+              onClick={onOpenLogin} 
+              title="Sign In"
+              style={{ 
+                width: 'auto', 
+                padding: '0 16px', 
+                height: '42px', 
+                borderRadius: 'var(--radius-full)',
+                fontWeight: '700',
+                fontSize: '13px',
+                borderColor: 'var(--color-primary)'
+              }}
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </div>
     </header>
