@@ -11,12 +11,20 @@ import ChatInbox from './components/ChatInbox';
 import Dashboard from './components/Dashboard';
 import Footer from './components/Footer';
 import ActiveFilters from './components/ActiveFilters';
+import LoginModal from './components/LoginModal';
 import { Sparkles } from 'lucide-react';
 
 export default function App() {
   // Main Data States
   const [listings, setListings] = useState(mockListings);
   const [chats, setChats] = useState(mockChats);
+
+  // User State
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('currentUser');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // App settings/modes
   const [theme, setTheme] = useState(() => {
@@ -43,6 +51,15 @@ export default function App() {
   const [showDashboardDrawer, setShowDashboardDrawer] = useState(false);
 
   const [loading, setLoading] = useState(true);
+
+  // Save current user to local storage on changes
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('currentUser');
+    }
+  }, [currentUser]);
 
   // Apply theme to document element
   useEffect(() => {
@@ -90,6 +107,10 @@ export default function App() {
 
   // Toggle saving listings
   const handleToggleSave = (id) => {
+    if (!currentUser) {
+      setShowLoginModal(true);
+      return;
+    }
     if (savedListingIds.includes(id)) {
       setSavedListingIds(savedListingIds.filter(savedId => savedId !== id));
     } else {
@@ -292,10 +313,31 @@ export default function App() {
         setSelectedLocation={setSelectedLocation}
         theme={theme}
         toggleTheme={toggleTheme}
-        onOpenSell={() => setShowSellModal(true)}
-        onOpenChats={() => setShowChatsDrawer(true)}
-        onOpenDashboard={() => setShowDashboardDrawer(true)}
+        onOpenSell={() => {
+          if (!currentUser) {
+            setShowLoginModal(true);
+          } else {
+            setShowSellModal(true);
+          }
+        }}
+        onOpenChats={() => {
+          if (!currentUser) {
+            setShowLoginModal(true);
+          } else {
+            setShowChatsDrawer(true);
+          }
+        }}
+        onOpenDashboard={() => {
+          if (!currentUser) {
+            setShowLoginModal(true);
+          } else {
+            setShowDashboardDrawer(true);
+          }
+        }}
         listings={listings}
+        currentUser={currentUser}
+        onOpenLogin={() => setShowLoginModal(true)}
+        onLogout={() => setCurrentUser(null)}
       />
 
       <main className="container animate-fade-in" style={{ flex: 1 }}>
@@ -434,6 +476,10 @@ export default function App() {
           onSendChatMessage={handleSendChatMessage}
           listings={listings}
           onSelectListing={handleSelectListing}
+          currentUser={currentUser}
+          onOpenLogin={() => setShowLoginModal(true)}
+          isSaved={savedListingIds.includes(selectedListing.id)}
+          onToggleSave={handleToggleSave}
         />
       )}
 
@@ -442,6 +488,7 @@ export default function App() {
         <SellModal
           onClose={() => setShowSellModal(false)}
           onPublish={handlePublishAd}
+          currentUser={currentUser}
         />
       )}
 
@@ -459,9 +506,21 @@ export default function App() {
       <Dashboard
         isOpen={showDashboardDrawer}
         onClose={() => setShowDashboardDrawer(false)}
-        userListings={listings.filter(item => item.seller.name === 'Victoria Luxe Watches')}
+        userListings={listings.filter(item => item.seller.name === (currentUser ? currentUser.name : ''))}
         onDeleteListing={handleDeleteListing}
+        currentUser={currentUser}
       />
+
+      {/* 5. Login / Registration Atmosphere Overlay Modal */}
+      {showLoginModal && (
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          onLogin={(user) => {
+            setCurrentUser(user);
+          }}
+        />
+      )}
     </>
   );
 }
