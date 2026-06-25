@@ -1,7 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Heart, Share, Play, MapPin, Star, ShieldCheck, Camera, Activity, ArrowRight, ChevronLeft, ChevronRight, MessageSquare, Phone, Sparkles } from 'lucide-react';
 
-export default function DetailView({ listing, onClose, onSendChatMessage, listings, onSelectListing }) {
+export default function DetailView({ 
+  listing, 
+  onClose, 
+  onSendChatMessage, 
+  listings, 
+  onSelectListing,
+  currentUser,
+  onOpenLogin,
+  isSaved,
+  onToggleSave
+}) {
   const [activeMediaTab, setActiveMediaTab] = useState('image'); // 'image' or 'video'
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [bidValue, setBidValue] = useState(listing.price);
@@ -34,6 +44,10 @@ export default function DetailView({ listing, onClose, onSendChatMessage, listin
   };
 
   const handleSendOffer = () => {
+    if (!currentUser) {
+      onOpenLogin();
+      return;
+    }
     const offerMessage = `Hello, I would like to submit an offer of $${bidValue.toLocaleString()} for this item. Is this acceptable?`;
 
     // Add user message
@@ -48,6 +62,10 @@ export default function DetailView({ listing, onClose, onSendChatMessage, listin
 
   const handleSendText = (e) => {
     e.preventDefault();
+    if (!currentUser) {
+      onOpenLogin();
+      return;
+    }
     if (!newMsg.trim()) return;
 
     const userMsg = { sender: 'user', text: newMsg, time: 'Just now' };
@@ -106,9 +124,24 @@ export default function DetailView({ listing, onClose, onSendChatMessage, listin
           </div>
           <div className="detail-modal-header-right">
             <span className="item-id-label">ID: #{listing.id}109</span>
-            <button className="header-save-btn">
-              <Heart size={14} />
-              <span>Save</span>
+            <button 
+              className={`header-save-btn ${isSaved ? 'active' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!currentUser) {
+                  onOpenLogin();
+                  return;
+                }
+                onToggleSave(listing.id);
+              }}
+              style={{
+                background: isSaved ? 'rgba(239, 68, 68, 0.1)' : '',
+                borderColor: isSaved ? 'rgba(239, 68, 68, 0.3)' : '',
+                color: isSaved ? 'var(--color-danger)' : ''
+              }}
+            >
+              <Heart size={14} fill={isSaved ? 'currentColor' : 'none'} />
+              <span>{isSaved ? 'Saved' : 'Save'}</span>
             </button>
             <button className="header-share-btn">
               <Share size={14} />
