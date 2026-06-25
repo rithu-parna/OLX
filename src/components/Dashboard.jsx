@@ -5,7 +5,8 @@ export default function Dashboard({
   isOpen, 
   onClose, 
   userListings, 
-  onDeleteListing 
+  onDeleteListing,
+  currentUser
 }) {
   if (!isOpen) return null;
 
@@ -30,14 +31,26 @@ export default function Dashboard({
       <div className="drawer-container glass-panel" onClick={(e) => e.stopPropagation()}>
         
         {/* Header */}
-        <div className="drawer-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <BarChart3 size={20} className="logo-highlight" />
-            <h2 className="drawer-title">Seller Hub & Stats</h2>
+        <div className="drawer-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
+          <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <BarChart3 size={20} className="logo-highlight" />
+              <h2 className="drawer-title">Seller Hub</h2>
+            </div>
+            <button className="drawer-close-btn" onClick={onClose}>
+              <X size={20} />
+            </button>
           </div>
-          <button className="drawer-close-btn" onClick={onClose}>
-            <X size={20} />
-          </button>
+          
+          {currentUser && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px', background: 'rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: 'var(--radius-md)', width: '100%', border: '1px solid var(--border-color)' }}>
+              <img src={currentUser.avatar} alt={currentUser.name} style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--color-primary)' }} />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '14px', fontWeight: '800', color: '#ffffff' }}>{currentUser.name}</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Member since {currentUser.joined || 'Jun 2026'} • Rating: {currentUser.rating || '5.0'} ★</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Body */}
