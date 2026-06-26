@@ -12,6 +12,7 @@ import Dashboard from './components/Dashboard';
 import Footer from './components/Footer';
 import ActiveFilters from './components/ActiveFilters';
 import LoginModal from './components/LoginModal';
+import CompareModal from './components/CompareModal';
 import { Sparkles } from 'lucide-react';
 
 export default function App() {
@@ -50,6 +51,8 @@ export default function App() {
   const [showChatsDrawer, setShowChatsDrawer] = useState(false);
   const [showDashboardDrawer, setShowDashboardDrawer] = useState(false);
 
+  const [compareListings, setCompareListings] = useState([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Save current user to local storage on changes
@@ -76,6 +79,18 @@ export default function App() {
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  const handleToggleCompare = (listing) => {
+    if (compareListings.some(item => item.id === listing.id)) {
+      setCompareListings(compareListings.filter(item => item.id !== listing.id));
+    } else {
+      if (compareListings.length >= 3) {
+        alert("You can compare up to 3 listings at a time!");
+        return;
+      }
+      setCompareListings([...compareListings, listing]);
+    }
   };
 
   // Add mock ad views count on select
@@ -455,6 +470,8 @@ export default function App() {
                     onSelect={handleSelectListing}
                     isSaved={savedListingIds.includes(item.id)}
                     onToggleSave={handleToggleSave}
+                    isComparing={compareListings.some(c => c.id === item.id)}
+                    onToggleCompare={handleToggleCompare}
                   />
                 ))}
               </div>
@@ -520,6 +537,112 @@ export default function App() {
             setCurrentUser(user);
           }}
         />
+      )}
+
+      {/* 6. Compare Asset Modal */}
+      {showCompareModal && (
+        <CompareModal
+          isOpen={showCompareModal}
+          onClose={() => setShowCompareModal(false)}
+          compareListings={compareListings}
+          onRemove={(id) => setCompareListings(compareListings.filter(c => c.id !== id))}
+          onSelectListing={handleSelectListing}
+        />
+      )}
+
+      {/* Floating Comparison Dock */}
+      {compareListings.length > 0 && (
+        <div 
+          className="glass-panel animate-fade-in"
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '20px',
+            padding: '12px 24px',
+            borderRadius: 'var(--radius-md)',
+            background: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid var(--color-primary-light)',
+            boxShadow: '0 10px 40px rgba(19, 161, 145, 0.3)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 800, color: '#fff' }}>Compare Assets ({compareListings.length}/3)</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {compareListings.map(item => (
+              <div 
+                key={item.id} 
+                style={{ 
+                  position: 'relative', 
+                  width: '40px', 
+                  height: '40px', 
+                  borderRadius: '4px', 
+                  overflow: 'hidden', 
+                  border: '1px solid rgba(255,255,255,0.1)' 
+                }}
+              >
+                <img src={item.images[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <button
+                  onClick={() => setCompareListings(compareListings.filter(c => c.id !== item.id))}
+                  style={{
+                    position: 'absolute',
+                    top: '0',
+                    right: '0',
+                    background: 'rgba(239, 68, 68, 0.8)',
+                    border: 'none',
+                    color: '#fff',
+                    borderRadius: '50%',
+                    width: '14px',
+                    height: '14px',
+                    fontSize: '9px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => setShowCompareModal(true)}
+              className="sell-publish-btn"
+              style={{
+                padding: '6px 14px',
+                height: '32px',
+                fontSize: '12px',
+                borderRadius: 'var(--radius-sm)'
+              }}
+            >
+              Compare Now
+            </button>
+            <button
+              onClick={() => setCompareListings([])}
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'var(--text-secondary)',
+                padding: '6px 12px',
+                borderRadius: 'var(--radius-sm)',
+                fontSize: '12px',
+                cursor: 'pointer'
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
       )}
     </>
   );
