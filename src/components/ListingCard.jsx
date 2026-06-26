@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Heart, MapPin, Play } from 'lucide-react';
+import { Heart, MapPin, Play, Scale } from 'lucide-react';
 
-export default function ListingCard({ listing, onSelect, isSaved, onToggleSave }) {
+export default function ListingCard({ listing, onSelect, isSaved, onToggleSave, isComparing, onToggleCompare }) {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -71,6 +71,45 @@ export default function ListingCard({ listing, onSelect, isSaved, onToggleSave }
             </span>
           )}
         </div>
+
+        {/* Compare Toggle */}
+        <button 
+          className={`compare-btn-overlay ${isComparing ? 'comparing' : ''}`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleCompare(listing);
+          }}
+          aria-label="Compare listing"
+          style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            background: isComparing ? 'var(--color-primary)' : 'rgba(15, 23, 42, 0.6)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            color: isComparing ? '#fff' : 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(8px)',
+            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+            zIndex: 10,
+            cursor: 'pointer'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.08)';
+            e.currentTarget.style.background = isComparing ? 'var(--color-primary)' : 'rgba(15, 23, 42, 0.8)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.background = isComparing ? 'var(--color-primary)' : 'rgba(15, 23, 42, 0.6)';
+          }}
+        >
+          <Scale size={13} />
+        </button>
 
         {/* Save Toggle */}
         <button 
