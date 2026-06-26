@@ -4199,3 +4199,43 @@ body {
     padding: 30px 20px;
   }
 }
+
+/* 360 & AR studio styles */
+@keyframes hotspotPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(20, 184, 166, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
+  }
+}
+
+.hotspot-pulse-btn {
+  animation: hotspotPulse 2s infinite;
+}
+
+.threesixty-viewport {
+  transition: background 0.6s ease;
+}
+
+.threesixty-viewport.lighting-studio {
+  background: radial-gradient(circle, #0e1626 0%, #05070c 100%) !important;
+}
+
+.threesixty-viewport.lighting-sunset {
+  background: radial-gradient(circle, #241408 0%, #0b0602 100%) !important;
+}
+
+.threesixty-viewport.lighting-cyber {
+  background: radial-gradient(circle, #0c0824 0%, #04020a 100%) !important;
+}
+
+/* Responsiveness for Threesixty & AR Modals */
+@media (max-width: 768px) {
+  .threesixty-card, .ar-modal-card {
+    height: 95vh !important;
+  }
+}
