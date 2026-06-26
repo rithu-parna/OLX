@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Heart, Share, Play, MapPin, Star, ShieldCheck, Camera, Activity, ArrowRight, ChevronLeft, ChevronRight, MessageSquare, Phone, Sparkles } from 'lucide-react';
+import ThreeSixtyModal from './ThreeSixtyModal';
+import ARModal from './ARModal';
 
 export default function DetailView({ 
   listing, 
@@ -15,20 +17,32 @@ export default function DetailView({
   const [activeMediaTab, setActiveMediaTab] = useState('image'); // 'image' or 'video'
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [bidValue, setBidValue] = useState(listing.price);
+  
+  const [showThreeSixty, setShowThreeSixty] = useState(false);
+  const [showAR, setShowAR] = useState(false);
 
-  // Chat States
-  const [messages, setMessages] = useState([
-    { sender: 'seller', text: `Hi there! Thanks for checking out my ${listing.title}. Let me know if you have any questions or would like to make an offer.`, time: 'Just now' }
-  ]);
+  // Chat States & AI Price Negotiator
+  const [messages, setMessages] = useState([]);
   const [newMsg, setNewMsg] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [currentSellerAsk, setCurrentSellerAsk] = useState(listing.price);
+  const [negotiationPhase, setNegotiationPhase] = useState('initial'); // 'initial', 'negotiating', 'agreed', 'locked'
   const chatBodyRef = useRef(null);
 
-  // Sync bid value on listing change
+  // Sync bid value and reset AI negotiator on listing change
   useEffect(() => {
     setBidValue(listing.price);
+    setCurrentSellerAsk(listing.price);
+    setNegotiationPhase('initial');
     setActiveImgIndex(0);
     setActiveMediaTab('image');
+    setMessages([
+      { 
+        sender: 'seller', 
+        text: `Hi there! I am the automated smart negotiator representing the seller of this ${listing.title}. My asking price is $${listing.price.toLocaleString()}. Feel free to type questions, appraise the asset, or submit your offer!`, 
+        time: 'Just now' 
+      }
+    ]);
   }, [listing]);
 
   // Scroll chat to bottom
@@ -41,6 +55,68 @@ export default function DetailView({
   const handlePresetBid = (percentage) => {
     const calculated = Math.round(listing.price * (1 + percentage));
     setBidValue(calculated);
+  };
+
+  const handleNegotiateOffer = (userOffer) => {
+    if (!currentUser) {
+      onOpenLogin();
+      return;
+    }
+
+    const minAcceptable = Math.round(listing.price * 0.90); // 10% discount cap
+    const absoluteLimit = Math.round(listing.price * 0.82); // 18% hard cap
+
+    setIsTyping(true);
+    setTimeout(() => {
+      setIsTyping(false);
+
+      if (userOffer >= currentSellerAsk) {
+        setNegotiationPhase('agreed');
+        setMessages(prev => [
+          ...prev,
+          { 
+            sender: 'seller', 
+            text: `🎉 That is a fair offer of $${userOffer.toLocaleString()}! We have a deal. Please click "Accept & Lock-in Deal" below to secure this asset in escrow.`, 
+            time: 'Just now' 
+          }
+        ]);
+      } else if (userOffer >= minAcceptable) {
+        setNegotiationPhase('agreed');
+        setCurrentSellerAsk(userOffer);
+        setMessages(prev => [
+          ...prev,
+          { 
+            sender: 'seller', 
+            text: `I've appraised your offer, and I can accept $${userOffer.toLocaleString()}! Let's lock this in. Please click "Accept & Lock-in Deal" below to finalize.`, 
+            time: 'Just now' 
+          }
+        ]);
+      } else if (userOffer >= absoluteLimit) {
+        const counter = Math.round((currentSellerAsk + userOffer) / 2);
+        setCurrentSellerAsk(counter);
+        setNegotiationPhase('negotiating');
+        setMessages(prev => [
+          ...prev,
+          { 
+            sender: 'seller', 
+            text: `That's a bit lower than expected. The absolute lowest we can go right now is $${counter.toLocaleString()}. What do you think about meeting in the middle?`, 
+            time: 'Just now' 
+          }
+        ]);
+      } else {
+        const counter = Math.round(currentSellerAsk * 0.95);
+        setCurrentSellerAsk(counter);
+        setNegotiationPhase('negotiating');
+        setMessages(prev => [
+          ...prev,
+          { 
+            sender: 'seller', 
+            text: `I'm afraid $${userOffer.toLocaleString()} is a bit too low for a verified asset in ${listing.condition} condition. How about we look at $${counter.toLocaleString()}?`, 
+            time: 'Just now' 
+          }
+        ]);
+      }
+    }, 1200);
   };
 
   const handleSendOffer = () => {
@@ -57,7 +133,7 @@ export default function DetailView({
     if (onSendChatMessage) {
       onSendChatMessage(listing.id, offerMessage);
     }
-    simulateSellerReply();
+    handleNegotiateOffer(bidValue);
   };
 
   const handleSendText = (e) => {
@@ -68,33 +144,42 @@ export default function DetailView({
     }
     if (!newMsg.trim()) return;
 
+    // Check if the message contains a numeric price value
+    const cleanedMsg = newMsg.replace(/,/g, '');
+    const priceMatch = cleanedMsg.match(/\$?(\d+)/);
+    
     const userMsg = { sender: 'user', text: newMsg, time: 'Just now' };
     setMessages(prev => [...prev, userMsg]);
+    setNewMsg('');
 
-    if (onSendChatMessage) {
-      onSendChatMessage(listing.id, newMsg);
+    if (priceMatch && priceMatch[1]) {
+      const offeredAmt = parseInt(priceMatch[1]);
+      if (offeredAmt > 100 && offeredAmt < listing.price * 2) {
+        handleNegotiateOffer(offeredAmt);
+        return;
+      }
     }
 
-    setNewMsg('');
-    simulateSellerReply();
-  };
-
-  const simulateSellerReply = () => {
+    // Default chat replies based on keywords
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
-      const replies = [
-        "Yes, the price is negotiable but only slightly.",
-        "It is in perfect condition, basically new.",
-        "I can meet tomorrow at a secure public location.",
-        "Let me know if you have any other questions!"
-      ];
-      const randomReply = replies[Math.floor(Math.random() * replies.length)];
+      const text = userMsg.text.toLowerCase();
+      let reply = `I'm here to help negotiate. The current counter-offer is $${currentSellerAsk.toLocaleString()}. Would you like to submit a bid?`;
+      
+      if (text.includes('condition') || text.includes('new') || text.includes('clean')) {
+        reply = `The item is in verified ${listing.condition} condition. It includes all matching papers, credentials, and has passed full authenticity checks.`;
+      } else if (text.includes('lowest') || text.includes('best price') || text.includes('discount')) {
+        reply = `My best available price is $${currentSellerAsk.toLocaleString()}. I can negotiate slightly if you make a counter-offer right now.`;
+      } else if (text.includes('shipping') || text.includes('delivery')) {
+        reply = `We provide insured overnight shipping with real-time GPS tracking. Escrow protection covers all damage checks before you approve payment.`;
+      }
+      
       setMessages(prev => [
         ...prev,
-        { sender: 'seller', text: randomReply, time: 'Just now' }
+        { sender: 'seller', text: reply, time: 'Just now' }
       ]);
-    }, 1500);
+    }, 1200);
   };
 
   // Related items
@@ -111,7 +196,8 @@ export default function DetailView({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <>
+      <div className="modal-overlay" onClick={onClose}>
       <div className="detail-modal-container glass-panel" onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
@@ -212,10 +298,10 @@ export default function DetailView({
 
                 {/* Media Control Overlays (Bottom Center) */}
                 <div className="viewport-media-controls">
-                  <button className="viewport-control-btn">
+                  <button className="viewport-control-btn" onClick={() => setShowThreeSixty(true)}>
                     <span>🔄 360° View</span>
                   </button>
-                  <button className="viewport-control-btn">
+                  <button className="viewport-control-btn" onClick={() => setShowAR(true)}>
                     <span>📐 AR Preview</span>
                   </button>
                   {listing.video && (
@@ -490,6 +576,52 @@ export default function DetailView({
                 )}
               </div>
 
+              {negotiationPhase === 'agreed' && (
+                <div style={{
+                  padding: '12px 16px',
+                  background: 'rgba(20, 184, 166, 0.12)',
+                  borderTop: '1px solid rgba(20, 184, 166, 0.2)',
+                  borderBottom: '1px solid rgba(20, 184, 166, 0.2)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '12px', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span>✨ Agreed Price:</span>
+                    <span style={{ color: 'var(--color-primary)', fontSize: '14px', fontWeight: 900 }}>${currentSellerAsk.toLocaleString()}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setNegotiationPhase('locked');
+                      setMessages(prev => [
+                        ...prev,
+                        { 
+                          sender: 'seller', 
+                          text: `🔒 DEAL LOCKED! We have officially secured the price of $${currentSellerAsk.toLocaleString()} in your name. A verification specialist will contact you with payment escrow details shortly.`, 
+                          time: 'Just now' 
+                        }
+                      ]);
+                    }}
+                    style={{
+                      background: 'var(--color-primary)',
+                      border: 'none',
+                      color: '#fff',
+                      padding: '6px 14px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      boxShadow: '0 4px 10px rgba(19, 161, 145, 0.3)'
+                    }}
+                  >
+                    Accept & Lock-in Deal
+                  </button>
+                </div>
+              )}
+
               <form className="chat-panel-footer" onSubmit={handleSendText}>
                 <input
                   type="text"
@@ -515,5 +647,20 @@ export default function DetailView({
 
       </div>
     </div>
-  );
+
+    {showThreeSixty && (
+      <ThreeSixtyModal
+        listing={listing}
+        onClose={() => setShowThreeSixty(false)}
+      />
+    )}
+
+    {showAR && (
+      <ARModal
+        listing={listing}
+        onClose={() => setShowAR(false)}
+      />
+    )}
+  </>
+);
 }
