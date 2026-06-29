@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, RotateCw, ZoomIn, Info, Play, Pause, Sun, Eye } from 'lucide-react';
+import { X, RotateCw, ZoomIn, Info, Play, Pause, Sun, HelpCircle, Eye } from 'lucide-react';
 
 const ATMOSPHERE_LIGHTING = [
   { name: 'Studio Dark', class: 'lighting-studio', glow: 'rgba(20, 184, 166, 0.2)' },
