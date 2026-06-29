@@ -140,18 +140,18 @@ export default function Header({
           </button>
 
           {/* Messages shortcut */}
-          <button className="action-btn" onClick={onOpenChats} title="My Chats">
+          <button className="action-btn desktop-only" onClick={onOpenChats} title="My Chats">
             <MessageSquare size={18} />
             <span className="badge-dot"></span>
           </button>
 
           {/* Dashboard shortcut */}
-          <button className="action-btn" onClick={onOpenDashboard} title="Seller Dashboard">
+          <button className="action-btn desktop-only" onClick={onOpenDashboard} title="Seller Dashboard">
             <BarChart3 size={18} />
           </button>
 
           {/* Sell Button */}
-          <button className="sell-btn" onClick={onOpenSell}>
+          <button className="sell-btn desktop-only" onClick={onOpenSell}>
             <Plus size={18} />
             <span>SELL</span>
           </button>

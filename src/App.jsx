@@ -13,7 +13,7 @@ import Footer from './components/Footer';
 import ActiveFilters from './components/ActiveFilters';
 import LoginModal from './components/LoginModal';
 import CompareModal from './components/CompareModal';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Home, Scale, Plus, MessageSquare, BarChart3 } from 'lucide-react';
 
 export default function App() {
   // Main Data States
@@ -644,6 +644,95 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="mobile-bottom-nav">
+        <button 
+          className="bottom-nav-item"
+          onClick={() => {
+            setSearchTerm('');
+            setSelectedLocation('All Locations');
+            setSelectedCategory('all');
+            setMinPrice(0);
+            setMaxPrice(150000);
+            setSelectedConditions([]);
+            setVideoOnly(false);
+          }}
+          title="Home"
+        >
+          <Home size={20} />
+          <span className="bottom-nav-label">Home</span>
+        </button>
+
+        <button 
+          className={`bottom-nav-item ${compareListings.length > 0 ? 'active-accent' : ''}`}
+          onClick={() => {
+            if (compareListings.length > 0) {
+              setShowCompareModal(true);
+            } else {
+              alert("Select assets using the scales icon ⚖️ on listing cards to compare them.");
+            }
+          }}
+          title="Compare"
+        >
+          <div style={{ position: 'relative' }}>
+            <Scale size={20} />
+            {compareListings.length > 0 && (
+              <span className="bottom-nav-badge">{compareListings.length}</span>
+            )}
+          </div>
+          <span className="bottom-nav-label">Compare</span>
+        </button>
+
+        <button 
+          className="bottom-nav-item sell-item"
+          onClick={() => {
+            if (!currentUser) {
+              setShowLoginModal(true);
+            } else {
+              setShowSellModal(true);
+            }
+          }}
+          title="Sell Asset"
+        >
+          <div className="bottom-nav-sell-circle">
+            <Plus size={22} />
+          </div>
+        </button>
+
+        <button 
+          className="bottom-nav-item"
+          onClick={() => {
+            if (!currentUser) {
+              setShowLoginModal(true);
+            } else {
+              setShowChatsDrawer(true);
+            }
+          }}
+          title="Chats"
+        >
+          <div style={{ position: 'relative' }}>
+            <MessageSquare size={20} />
+            <span className="bottom-nav-badge-dot"></span>
+          </div>
+          <span className="bottom-nav-label">Chats</span>
+        </button>
+
+        <button 
+          className="bottom-nav-item"
+          onClick={() => {
+            if (!currentUser) {
+              setShowLoginModal(true);
+            } else {
+              setShowDashboardDrawer(true);
+            }
+          }}
+          title="Seller Hub"
+        >
+          <BarChart3 size={20} />
+          <span className="bottom-nav-label">Hub</span>
+        </button>
+      </div>
     </>
   );
 }
