@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Heart, Share, Play, MapPin, Star, ShieldCheck, Camera, Activity, ArrowRight, ChevronLeft, ChevronRight, MessageSquare, Phone, Sparkles } from 'lucide-react';
 import ThreeSixtyModal from './ThreeSixtyModal';
 import ARModal from './ARModal';
+import AuctionArenaModal from './AuctionArenaModal';
 
 export default function DetailView({ 
   listing, 
@@ -20,6 +21,7 @@ export default function DetailView({
   
   const [showThreeSixty, setShowThreeSixty] = useState(false);
   const [showAR, setShowAR] = useState(false);
+  const [showAuctionModal, setShowAuctionModal] = useState(false);
 
   // Chat States & AI Price Negotiator
   const [messages, setMessages] = useState([]);
@@ -416,40 +418,69 @@ export default function DetailView({
             </div>
 
             {/* Make an Offer Section */}
-            <div className="offer-section-block glass-panel">
-              <div className="offer-header-row">
-                <h4 className="offer-panel-title">Make an Offer</h4>
-                <span className="recommended-price-label">Recommended Price: ${Math.round(listing.price * 0.95).toLocaleString()}</span>
-              </div>
+            <div className="offer-section-block glass-panel" style={listing.isAuction ? { border: '1px solid rgba(20, 184, 166, 0.4)', background: 'linear-gradient(135deg, rgba(20,184,166,0.05) 0%, rgba(15,23,42,0.2) 100%)' } : {}}>
+              {listing.isAuction ? (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '16px' }}>👑</span>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-primary-light)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>VIP LIVE AUCTION</span>
+                    </div>
+                    <span className="save-amount-badge" style={{ background: 'var(--color-primary)', color: '#fff', padding: '3px 8px', borderRadius: '4px', fontSize: '9px', fontWeight: 800 }}>LIVE NOW</span>
+                  </div>
+                  
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: '1.4' }}>
+                    This premium asset is designated for VIP live auction bidding. Place bids in real-time against verified collectors with escrow backing.
+                  </p>
 
-              {/* Offer input */}
-              <div className="offer-input-container">
-                <span className="offer-currency-symbol">$</span>
-                <input
-                  type="text"
-                  className="offer-input-field"
-                  value={bidValue.toLocaleString()}
-                  onChange={(e) => setBidValue(Number(e.target.value.replace(/,/g, '')) || 0)}
-                />
-              </div>
+                  <button 
+                    onClick={() => setShowAuctionModal(true)}
+                    className="sell-publish-btn"
+                    style={{
+                      background: 'var(--color-primary)',
+                      boxShadow: '0 0 15px rgba(20, 184, 166, 0.4)',
+                      height: '46px',
+                      fontWeight: 900,
+                      marginBottom: '16px'
+                    }}
+                  >
+                    Enter VIP Auction Arena
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="offer-header-row">
+                    <h4 className="offer-panel-title">Make an Offer</h4>
+                    <span className="recommended-price-label">Recommended Price: ${Math.round(listing.price * 0.95).toLocaleString()}</span>
+                  </div>
 
-              {/* Presets */}
-              <div className="offer-presets-row">
-                <button className="offer-preset-btn" onClick={() => handlePresetBid(-0.1)}>-10%</button>
-                <button className="offer-preset-btn" onClick={() => handlePresetBid(-0.05)}>-5%</button>
-                <button className="offer-preset-btn" onClick={() => setBidValue(listing.price)}>Ask Price</button>
-                <button className="offer-preset-btn" onClick={() => handlePresetBid(0.05)}>+5%</button>
-              </div>
+                  <div className="offer-input-container">
+                    <span className="offer-currency-symbol">$</span>
+                    <input
+                      type="text"
+                      className="offer-input-field"
+                      value={bidValue.toLocaleString()}
+                      onChange={(e) => setBidValue(Number(e.target.value.replace(/,/g, '')) || 0)}
+                    />
+                  </div>
 
-              {/* Actions */}
-              <div className="offer-actions-row">
-                <button className="offer-submit-btn" onClick={handleSendOffer}>
-                  Submit Offer
-                </button>
-                <button className="offer-buynow-btn" onClick={handleSendOffer}>
-                  ⚡ Buy Now
-                </button>
-              </div>
+                  <div className="offer-presets-row">
+                    <button className="offer-preset-btn" onClick={() => handlePresetBid(-0.1)}>-10%</button>
+                    <button className="offer-preset-btn" onClick={() => handlePresetBid(-0.05)}>-5%</button>
+                    <button className="offer-preset-btn" onClick={() => setBidValue(listing.price)}>Ask Price</button>
+                    <button className="offer-preset-btn" onClick={() => handlePresetBid(0.05)}>+5%</button>
+                  </div>
+
+                  <div className="offer-actions-row">
+                    <button className="offer-submit-btn" onClick={handleSendOffer}>
+                      Submit Offer
+                    </button>
+                    <button className="offer-buynow-btn" onClick={handleSendOffer}>
+                      ⚡ Buy Now
+                  </button>
+                  </div>
+                </>
+              )}
 
               {/* Guarantee items */}
               <div className="offer-guarantees-grid">
@@ -659,6 +690,14 @@ export default function DetailView({
       <ARModal
         listing={listing}
         onClose={() => setShowAR(false)}
+      />
+    )}
+
+    {showAuctionModal && (
+      <AuctionArenaModal
+        listing={listing}
+        onClose={() => setShowAuctionModal(false)}
+        currentUser={currentUser}
       />
     )}
   </>
