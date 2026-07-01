@@ -85,9 +85,6 @@ export default function ThreeSixtyModal({ listing, onClose }) {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         style={{
-          width: '95%',
-          maxWidth: '1000px',
-          height: '650px',
           display: 'flex',
           flexDirection: 'column',
           borderRadius: 'var(--radius-lg)',
@@ -261,7 +258,7 @@ export default function ThreeSixtyModal({ listing, onClose }) {
         </div>
 
         {/* Studio Controls Footer */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', background: 'rgba(15, 22, 38, 0.8)', borderTop: '1px solid var(--border-color)', gap: '16px' }}>
+        <div className="modal-controls-footer" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', background: 'rgba(15, 22, 38, 0.8)', borderTop: '1px solid var(--border-color)', gap: '16px' }}>
 
           {/* Rotation controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
