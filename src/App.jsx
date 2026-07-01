@@ -263,7 +263,11 @@ export default function App() {
 
     // 3. Category Filter
     if (selectedCategory !== 'all') {
-      if (item.category !== selectedCategory) return false;
+      if (selectedCategory === 'auctions') {
+        if (!item.isAuction) return false;
+      } else if (item.category !== selectedCategory) {
+        return false;
+      }
     }
 
     // 4. Price range Filter
