@@ -81,9 +81,6 @@ export default function ARModal({ listing, onClose }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 15 }}
         style={{
-          width: '95%',
-          maxWidth: '1000px',
-          height: '680px',
           display: 'flex',
           flexDirection: 'column',
           borderRadius: 'var(--radius-lg)',
@@ -267,7 +264,7 @@ export default function ARModal({ listing, onClose }) {
         </div>
 
         {/* Viewport Control Panel Footer */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', background: 'rgba(15, 22, 38, 0.85)', borderTop: '1px solid var(--border-color)', gap: '16px', zIndex: 10 }}>
+        <div className="modal-controls-footer" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', background: 'rgba(15, 22, 38, 0.85)', borderTop: '1px solid var(--border-color)', gap: '16px', zIndex: 10 }}>
           
           {/* Left: Mode toggle & Shutter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
