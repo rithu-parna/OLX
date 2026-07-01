@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Car, Home, Smartphone, Watch, Headphones, Camera, ChevronRight } from 'lucide-react';
+import { Sparkles, Car, Home, Smartphone, Watch, Headphones, Camera, ChevronRight, Trophy } from 'lucide-react';
 
 const iconMap = {
   Sparkles,
@@ -8,7 +8,8 @@ const iconMap = {
   Smartphone,
   Watch,
   Headphones,
-  Camera
+  Camera,
+  Trophy
 };
 
 const categoryListingsCounts = {
@@ -18,7 +19,8 @@ const categoryListingsCounts = {
   electronics: '3,210+ Listings',
   watches: '950+ Listings',
   audio: '760+ Listings',
-  drones: '680+ Listings'
+  drones: '680+ Listings',
+  auctions: '2 Active VIP'
 };
 
 export default function CategoryChips({ categories, selectedCategory, setSelectedCategory }) {
