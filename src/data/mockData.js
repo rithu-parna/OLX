@@ -1,5 +1,6 @@
 export const mockCategories = [
   { id: 'all', name: 'All Categories', icon: 'Sparkles' },
+  { id: 'auctions', name: 'VIP Auctions', icon: 'Trophy' },
   { id: 'cars', name: 'Cars & Motors', icon: 'Car' },
   { id: 'properties', name: 'Real Estate', icon: 'Home' },
   { id: 'electronics', name: 'Tech & Mobiles', icon: 'Smartphone' },
@@ -25,6 +26,7 @@ export const mockListings = [
     ],
     video: 'https://assets.mixkit.co/videos/preview/mixkit-red-sports-car-driving-fast-32608-large.mp4',
     featured: true,
+    isAuction: true,
     seller: {
       name: 'Alexander Sterling',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
@@ -136,6 +138,7 @@ export const mockListings = [
     ],
     video: 'https://assets.mixkit.co/videos/preview/mixkit-wrist-watch-in-close-up-42099-large.mp4',
     featured: true,
+    isAuction: true,
     seller: {
       name: 'Victoria Luxe Watches',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
