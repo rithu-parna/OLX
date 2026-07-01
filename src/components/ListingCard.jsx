@@ -56,7 +56,9 @@ export default function ListingCard({ listing, onSelect, isSaved, onToggleSave, 
 
         {/* Badges */}
         <div className="badge-overlay-container">
-          {listing.id === 1 || listing.id === 3 || listing.id === 6 ? (
+          {listing.isAuction ? (
+            <span className="card-badge featured-badge" style={{ background: 'linear-gradient(90deg, #14b8a6 0%, #0f766e 100%)', border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 0 12px rgba(20, 184, 166, 0.5)', fontWeight: 900 }}>👑 LIVE AUCTION</span>
+          ) : listing.id === 1 || listing.id === 3 || listing.id === 6 ? (
             <span className="card-badge promoted-badge">PROMOTED</span>
           ) : listing.id === 2 ? (
             <span className="card-badge featured-badge">FEATURED</span>
